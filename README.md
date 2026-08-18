@@ -29,18 +29,18 @@
 ### Multi-Factor Authentication (MFA)
 SecurePortal enforces a mandatory **three-stage authentication flow** for all high-privilege users:
 
-**Credentials Validation**
+**📍Credentials Validation**
 - Username + Password authentication
 - Passwords hashed with **Argon2** (NIST-recommended)
 - Configurable password complexity policies (min 8 chars, uppercase, numbers, special chars)
 
-**Email-based OTP Verification**
+**📍Email-based OTP Verification**
 - Time-limited 6-digit one-time password (OTP)
 - 4-minute validity window
 - Session-bound validation (tied to specific login attempt)
 - Rate-limited to prevent brute-force attacks
 
-**Hardware/Desktop Token Validation**
+**📍Hardware/Desktop Token Validation**
 - Single-use token generation via C# Desktop Token Generator app
 - Context-bound tokens (bound to session & IP)
 - Desktop app communicates via secure API endpoints
