@@ -1,55 +1,76 @@
-# SecurePortal – Secure Token-Based Multi-Factor Authentication System
+<h1 align="center">NEXTGEN-SecurePortal </h1>
+<p align="center">Secure Token-Based Multi-Factor Authentication System for Web Applications</p>   
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<div align="center">
+   
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6.svg)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3.svg)](https://getbootstrap.com/)
+[![C#](https://img.shields.io/badge/C%23-68217A.svg)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+[![SQL](https://img.shields.io/badge/SQL-336791.svg)](https://www.w3schools.com/sql/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Django 6.0+](https://img.shields.io/badge/Django-6.0+-darkgreen.svg)](https://www.djangoproject.com/)
 [![PostgreSQL 15+](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> A production-ready enterprise authentication system implementing three-tier security validation with hardware token support, real-time audit logging, and role-based access control (RBAC). Designed for corporate environments requiring high-security user authentication and access management.
+</div>
+<p align="center">NEXTGEN SecurePortal is a secure enterprise authentication system designed to strengthen web application access through layered security validation. It integrates password authentication, email OTP verification, registered-workstation validation, short-lived single-use login tokens, role-based access control, and audit logging to provide controlled, traceable authentication for corporate environments.
+</p>   
 
-## 🔒 Security Features
+<div align="center">
 
-### Multi-Factor Authentication (MFA)
+![NEXTGEN-SecurePortal](images/1.png)
+
+</div>
+
+<h2>SECURITY FEATURES</h2>
+
+### ➤ Multi-Factor Authentication (MFA)
 SecurePortal enforces a mandatory **three-stage authentication flow** for all high-privilege users:
 
-1. **Credentials Validation** 🔑
+1. **Credentials Validation**
    - Username + Password authentication
    - Passwords hashed with **Argon2** (NIST-recommended)
    - Configurable password complexity policies (min 8 chars, uppercase, numbers, special chars)
 
-2. **Email-based OTP Verification** 📧
+2. **Email-based OTP Verification**
    - Time-limited 6-digit one-time password (OTP)
    - 4-minute validity window
    - Session-bound validation (tied to specific login attempt)
    - Rate-limited to prevent brute-force attacks
 
-3. **Hardware/Desktop Token Validation** 🖥️
+3. **Hardware/Desktop Token Validation**
    - Single-use token generation via C# Desktop Token Generator app
    - Context-bound tokens (bound to session & IP)
    - Desktop app communicates via secure API endpoints
 
-### Access Control & Auditing
+### ➤ Access Control & Auditing
 - **Role-Based Access Control (RBAC)**: Super Admin, Branch Admin, High-Privilege User roles
 - **Audit Logging**: Complete audit trail of all authentication attempts and user actions
 - **Session Management**: Automatic session expiration (1 hour default)
 - **Security Headers**: XSS protection, CSRF tokens, Clickjacking defense
 - **Strike-Based Lockout Policies**: Automatic account lockout after failed attempts
 
-## 📋 System Requirements
+<div align="center">
 
-### Backend
-- **Python**: 3.10 or higher
-- **PostgreSQL**: 15 or higher
-- **pip**: Python package manager
+![NEXTGEN-SecurePortal](images/2.png)
 
-### Desktop Token Generator
-- **.NET**: 6 or higher
-- **Windows**: 7 or higher (for desktop app)
+</div>
 
-### Optional
-- **Node.js**: For future SPA frontend extensions
+<div align="center">
 
-## 🚀 Quick Start
+![NEXTGEN-SecurePortal](images/3.png)
+
+</div>
+
+<div align="center">
+
+![NEXTGEN-SecurePortal](images/4.png)
+
+</div>
+
+## QUICK START
 
 ### Step 1: Clone & Setup Repository
 
@@ -147,7 +168,7 @@ Visit `http://localhost:8000/` in your browser to access the portal.
 
 ---
 
-## 🏗️ Project Architecture
+## PROJECT ARCHITECTURE
 
 ### Directory Structure
 
@@ -205,7 +226,7 @@ SecurePortal/
 └── README.md             # This file
 ```
 
-### Technology Stack
+### TECHNOLOGY STACK
 
 **Backend**
 - **Django 6.0+**: Web framework
@@ -224,7 +245,7 @@ SecurePortal/
 
 ---
 
-## 🔐 Configuration Guide
+## CONFIGURATION GUIDE
 
 ### Email / SMTP Setup
 
@@ -281,7 +302,7 @@ SecurePortal/
 
 ---
 
-## 👥 User Roles & Permissions
+## User Roles & Permissions
 
 | Role | Capabilities |
 |------|-------------|
@@ -291,38 +312,7 @@ SecurePortal/
 
 ---
 
-## 📊 Database Schema
-
-### Core Models
-
-**CustomUser**
-- Unique username, email, employee ID
-- Role-based access control
-- Account status tracking
-- Audit trail
-
-**Branch**
-- Organization branch/location
-- User assignment
-
-**OTP** (One-Time Password)
-- Session-bound 6-digit codes
-- Expiration timestamps
-- Validation attempts
-
-**DeviceRegistration**
-- Desktop token generator registration
-- Device identification
-- Token history
-
-**AuditLog**
-- Complete authentication audit trail
-- User actions logging
-- IP address & timestamp tracking
-
----
-
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
@@ -353,7 +343,7 @@ coverage report
 
 ---
 
-## 🛠️ Development & Contributing
+## Development & Contributing
 
 ### Install Development Dependencies
 ```bash
@@ -361,20 +351,7 @@ pip install -r requirements-dev.txt  # If provided
 pip install black flake8 pytest django-debug-toolbar
 ```
 
-### Code Style
-- Follow PEP 8 conventions
-- Use Black for code formatting
-- Use Flake8 for linting
-
-### Git Workflow
-1. Create feature branch: `git checkout -b feature/your-feature`
-2. Make changes and commit: `git commit -m "Add your feature"`
-3. Push to remote: `git push origin feature/your-feature`
-4. Create Pull Request
-
----
-
-## 📝 API Documentation
+## API Documentation
 
 ### Token Generation Endpoint
 **POST** `/api/v1/generate-token/`
@@ -418,7 +395,7 @@ Response:
 
 ---
 
-## 🐛 Troubleshooting
+## TROUBLESHOOTING
 
 ### Common Issues
 
@@ -455,7 +432,7 @@ pip install psycopg2-binary
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Django Documentation](https://docs.djangoproject.com/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
@@ -464,45 +441,10 @@ pip install psycopg2-binary
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🤝 Support & Contact
-
-For issues, bug reports, or feature requests, please open an [Issue](https://github.com/yourusername/SecurePortal/issues) on GitHub.
-
-For security vulnerabilities, please **do NOT** open a public issue. Instead, follow responsible disclosure practices and contact the maintainers directly.
-
----
-
-## ⚠️ Security Notice
-
-This project handles sensitive authentication data. Before using in production:
-
-✅ **Do:**
-- Generate a new SECRET_KEY
-- Use strong database passwords
-- Enable HTTPS/SSL
-- Run security audit
-- Review all hardcoded values
-- Keep dependencies updated
-- Implement rate limiting
-- Monitor audit logs
-
-❌ **Don't:**
-- Commit `.env` file to repository
-- Use DEBUG=True in production
-- Share SECRET_KEY publicly
-- Use weak passwords
-- Skip security headers
-- Disable HTTPS in production
-- Ignore security warnings
-
----
-
-**Built with ❤️ for enterprise security**
-
-Last Updated: 2024
+Last Updated: 2026
