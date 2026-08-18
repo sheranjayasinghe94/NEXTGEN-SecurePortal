@@ -26,7 +26,7 @@
 
 <h2>SECURITY FEATURES</h2>
 
-### ➤ Multi-Factor Authentication (MFA)
+### Multi-Factor Authentication (MFA)
 SecurePortal enforces a mandatory **three-stage authentication flow** for all high-privilege users:
 
 1. **Credentials Validation**
@@ -45,7 +45,7 @@ SecurePortal enforces a mandatory **three-stage authentication flow** for all hi
    - Context-bound tokens (bound to session & IP)
    - Desktop app communicates via secure API endpoints
 
-### ➤ Access Control & Auditing
+### Access Control & Auditing
 - **Role-Based Access Control (RBAC)**: Super Admin, Branch Admin, High-Privilege User roles
 - **Audit Logging**: Complete audit trail of all authentication attempts and user actions
 - **Session Management**: Automatic session expiration (1 hour default)
