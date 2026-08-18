@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NextGen SecurePortal</title>
+  <meta name="description" content="Secure layered authentication portal for high-privilege corporate internal users.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="landing-nav">
+  <div class="nav-brand">
+    <i class="bi bi-shield-lock-fill"></i>
+    <span>NextGen SecurePortal</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <span style="font-size:0.78rem;color:var(--color-muted);text-transform:uppercase;letter-spacing:0.08em;">
+      Restricted Access
+    </span>
+    <a href="{% url 'login_choice' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-lock-fill"></i> Portal Login
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="landing-hero">
+  <div class="hero-content">
+    <div class="hero-tag">
+      <i class="bi bi-shield-fill-check"></i>
+      Secure · Restricted · Authorized Personnel Only
+    </div>
+    <h1 class="hero-title">
+      N e x t G e n<br>
+      <span>Internal Access Portal</span>
+    </h1>
+    <p class="hero-desc">
+      A secure, layered authentication system protecting access to sensitive corporate resources.
+      Authorized staff only — all access attempts are logged and monitored.
+    </p>
+    <div class="hero-cta">
+      <a href="{% url 'login_choice' %}" class="btn btn-primary btn-lg">
+        <i class="bi bi-box-arrow-in-right"></i> Access Portal
+      </a>
+      <a href="#features" class="btn btn-outline btn-lg">
+        <i class="bi bi-info-circle"></i> Learn More
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="feature-strip" id="features">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <h2 style="font-size:1.6rem;font-weight:800;color:#f1f5f9;margin-bottom:0.5rem;">
+      Three-Layer Security Architecture
+    </h2>
+    <p style="color:var(--color-muted);font-size:0.9rem;">
+      Every login requires three independent verification steps before access is granted.
+    </p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-key-fill"></i></div>
+      <div class="feature-title">1. Credential Verification</div>
+      <p class="feature-text">Username and password verified against securely hashed records. Accounts lock after failed attempts.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-envelope-fill"></i></div>
+      <div class="feature-title">2. Email OTP</div>
+      <p class="feature-text">A time-limited 6-digit OTP is sent to your registered corporate email. Valid for 4 minutes only.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-pc-display-horizontal"></i></div>
+      <div class="feature-title">3. Desktop Token</div>
+      <p class="feature-text">A Windows desktop application generates a single-use login token via the secure backend API.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-person-badge-fill"></i></div>
+      <div class="feature-title">Admin Provisioning</div>
+      <p class="feature-text">No public self-registration. All accounts are created and managed by authorized administrators only.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-journal-text"></i></div>
+      <div class="feature-title">Full Audit Trail</div>
+      <p class="feature-text">Every login attempt, OTP event, and token generation is recorded with timestamps and IP addresses.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="bi bi-layers-fill"></i></div>
+      <div class="feature-title">Role-Based Access</div>
+      <p class="feature-text">Dashboard content is tailored per role: manager, compliance, finance, HR, auditor, and more.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Auth Flow Diagram -->
+<section style="padding:5rem 3rem;background:var(--color-bg);text-align:center;">
+  <h2 style="font-size:1.4rem;font-weight:800;color:#f1f5f9;margin-bottom:0.5rem;">Authentication Flow</h2>
+  <p style="color:var(--color-muted);font-size:0.88rem;margin-bottom:3rem;">Sequential steps — all must be completed to gain access</p>
+  <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0.5rem;max-width:900px;margin:0 auto;">
+    {% for step in steps %}{% endfor %}
+    <div style="background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:12px;padding:1.2rem 1.5rem;min-width:140px;text-align:center;">
+      <div style="font-size:1.6rem;margin-bottom:0.4rem;">🔐</div>
+      <div style="font-size:0.85rem;font-weight:700;color:#f1f5f9;">Credentials</div>
+      <div style="font-size:0.73rem;color:var(--color-muted);">Username + Password</div>
+    </div>
+    <i class="bi bi-arrow-right" style="color:var(--color-primary);font-size:1.2rem;"></i>
+    <div style="background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:12px;padding:1.2rem 1.5rem;min-width:140px;text-align:center;">
+      <div style="font-size:1.6rem;margin-bottom:0.4rem;">📧</div>
+      <div style="font-size:0.85rem;font-weight:700;color:#f1f5f9;">Email OTP</div>
+      <div style="font-size:0.73rem;color:var(--color-muted);">6-digit · 4 min</div>
+    </div>
+    <i class="bi bi-arrow-right" style="color:var(--color-primary);font-size:1.2rem;"></i>
+    <div style="background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:12px;padding:1.2rem 1.5rem;min-width:140px;text-align:center;">
+      <div style="font-size:1.6rem;margin-bottom:0.4rem;">🖥️</div>
+      <div style="font-size:0.85rem;font-weight:700;color:#f1f5f9;">Desktop Token</div>
+      <div style="font-size:0.73rem;color:var(--color-muted);">Windows App · Online</div>
+    </div>
+    <i class="bi bi-arrow-right" style="color:var(--color-success);font-size:1.2rem;"></i>
+    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:1.2rem 1.5rem;min-width:140px;text-align:center;">
+      <div style="font-size:1.6rem;margin-bottom:0.4rem;">✅</div>
+      <div style="font-size:0.85rem;font-weight:700;color:var(--color-success);">Secure Portal</div>
+      <div style="font-size:0.73rem;color:var(--color-muted);">Access Granted</div>
+    </div>
+  </div>
+</section>
+
+<footer class="landing-footer">
+  <p>© 2026 N e x t G e n Corporation · SecurePortal · Restricted Internal System · All access is monitored and logged</p>
+</footer>
+
+</body>
+</html>

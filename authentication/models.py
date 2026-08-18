@@ -1,0 +1,221 @@
+import uuid
+import hashlib
+from django.db import models
+from django.utils import timezone
+from accounts.models import CustomUser
+
+
+class RegisteredDevice(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='registered_devices')
+    device_id = models.CharField(max_length=100, unique=True)
+    machine_guid = models.CharField(max_length=100)
+    device_name = models.CharField(max_length=100)
+    windows_username = models.CharField(max_length=100)
+    mac_address_hash = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    registered_at = models.DateTimeField(default=timezone.now)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.device_name} ({self.user.username})"
+
+class DeviceRegistrationCode(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='registration_codes')
+    code = models.CharField(max_length=20, unique=True)
+    is_used = models.BooleanField(default=False)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='created_device_codes')
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"Code for {self.user.username} - Used: {self.is_used}"
+
+class AuthenticationFlow(models.Model):
+    """Tracks a single active login attempt end-to-end."""
+    STATUS_CHOICES = [
+        ('started', 'Started'),
+        ('otp_sent', 'OTP Sent'),
+        ('otp_verified', 'OTP Verified'),
+        ('token_generated', 'Token Generated'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('expired', 'Expired'),
+    ]
+
+    auth_flow_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='auth_flows')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='started')
+    otp_verified = models.BooleanField(default=False)
+    token_generated = models.BooleanField(default=False)
+    token_verified = models.BooleanField(default=False)
+    started_at = models.DateTimeField(default=timezone.now)
+    # Flow expires 20 minutes from start to cover the whole multi-step process
+    expires_at = models.DateTimeField()
+    invalidated_at = models.DateTimeField(null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            from datetime import timedelta
+            self.expires_at = timezone.now() + timedelta(minutes=20)
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def invalidate(self):
+        self.status = 'expired'
+        self.invalidated_at = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return f"Flow {self.auth_flow_id} | {self.user.username} | {self.status}"
+
+
+class OTPRecord(models.Model):
+    """Stores a hashed OTP for either login or password reset."""
+    OTP_TYPE_CHOICES = [('login', 'Login OTP'), ('reset', 'Password Reset OTP')]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    auth_flow = models.ForeignKey(
+        AuthenticationFlow, null=True, blank=True, on_delete=models.CASCADE,
+        related_name='otp_records'
+    )
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='otp_records')
+    otp_hash = models.CharField(max_length=64)  # SHA-256 hex
+    otp_type = models.CharField(max_length=10, choices=OTP_TYPE_CHOICES, default='login')
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+    resend_count = models.IntegerField(default=0)
+    is_verified = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)       # used for desktop token generation
+    locked_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    @staticmethod
+    def hash_otp(otp: str) -> str:
+        return hashlib.sha256(otp.encode()).hexdigest()
+
+    def verify(self, otp: str) -> bool:
+        return self.otp_hash == self.hash_otp(otp)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def is_locked(self):
+        return self.locked_until and timezone.now() < self.locked_until
+
+    def __str__(self):
+        return f"OTP({self.otp_type}) | {self.user.username} | verified={self.is_verified}"
+
+
+class TokenRecord(models.Model):
+    """Stores a hashed single-use login token generated by the desktop app flow."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    auth_flow = models.OneToOneField(
+        AuthenticationFlow, on_delete=models.CASCADE, related_name='token_record'
+    )
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='token_records')
+    token_hash = models.CharField(max_length=64)  # SHA-256 hex
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    locked_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    @staticmethod
+    def hash_token(token: str) -> str:
+        return hashlib.sha256(token.encode()).hexdigest()
+
+    def verify(self, token: str) -> bool:
+        return self.token_hash == self.hash_token(token)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def is_locked(self):
+        return self.locked_until and timezone.now() < self.locked_until
+
+    def __str__(self):
+        return f"Token | {self.user.username} | used={self.is_used}"
+
+
+class PasswordResetRecord(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('verified', 'Verified'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('expired', 'Expired'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reset_records')
+    reset_otp_hash = models.CharField(max_length=64)
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    @staticmethod
+    def hash_otp(otp: str) -> str:
+        return hashlib.sha256(otp.encode()).hexdigest()
+
+    def verify(self, otp: str) -> bool:
+        return self.reset_otp_hash == self.hash_otp(otp)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"Reset | {self.user.username} | {self.status}"
+
+
+class AuditLog(models.Model):
+    """Security event audit trail."""
+    ACTION_CHOICES = [
+        ('login_attempt', 'Login Attempt'),
+        ('login_success', 'Login Success'),
+        ('login_failed', 'Login Failed'),
+        ('otp_sent', 'OTP Sent'),
+        ('otp_verified', 'OTP Verified'),
+        ('otp_failed', 'OTP Failed'),
+        ('otp_resend', 'OTP Resend'),
+        ('token_generated', 'Token Generated'),
+        ('token_verified', 'Token Verified'),
+        ('token_failed', 'Token Failed'),
+        ('logout', 'Logout'),
+        ('password_changed', 'Password Changed'),
+        ('password_reset_request', 'Password Reset Request'),
+        ('password_reset_complete', 'Password Reset Complete'),
+        ('account_locked', 'Account Locked'),
+        ('account_created', 'Account Created'),
+        ('account_deactivated', 'Account Deactivated'),
+        ('account_activated', 'Account Activated'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        CustomUser, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='audit_logs'
+    )
+    action_type = models.CharField(max_length=40, choices=ACTION_CHOICES)
+    description = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    success = models.BooleanField(default=True)
+    auth_flow = models.ForeignKey(
+        AuthenticationFlow, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='audit_logs'
+    )
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.action_type} | {self.user} | {'OK' if self.success else 'FAIL'}"

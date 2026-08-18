@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Verification – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="brand-header">
+      <div class="brand-logo" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">
+        <i class="bi bi-pc-display-horizontal"></i>
+      </div>
+      <span class="brand-name">Login Token Verification</span>
+      <span class="brand-sub">Step 3 of 3 — Desktop Token</span>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="auth-steps">
+      <div class="step-item done">
+        <div class="step-circle"><i class="bi bi-check-lg" style="font-size:0.85rem;"></i></div>
+        <div class="step-label">Login</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item done">
+        <div class="step-circle"><i class="bi bi-check-lg" style="font-size:0.85rem;"></i></div>
+        <div class="step-label">OTP</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item active">
+        <div class="step-circle">3</div>
+        <div class="step-label">Token</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item pending">
+        <div class="step-circle"><i class="bi bi-lock-fill" style="font-size:0.7rem;"></i></div>
+        <div class="step-label">Access</div>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %}">
+          <i class="bi bi-{% if msg.tags == 'error' %}exclamation-triangle-fill{% else %}check-circle-fill{% endif %}"></i>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if lockout_seconds and lockout_seconds > 0 %}
+    <div class="lockout-bar">
+      <i class="bi bi-lock-fill"></i>
+      Too many incorrect attempts. <strong>Wait <span id="lockout-count">{{ lockout_seconds }}</span>s</strong>
+    </div>
+    {% endif %}
+
+    <!-- Instructions -->
+    <div class="auth-info-box">
+      <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:2px;"></i>
+      <div>
+        Open the <strong>SecurePortal Desktop Token Generator</strong> on your Windows computer.
+        Enter your OTP and the Session ID below to generate your login token.
+      </div>
+    </div>
+
+    <!-- Auth Flow ID -->
+    <div>
+      <div class="flow-id-label">Your Session ID (enter this in the desktop app)</div>
+      <div class="flow-id-box" id="flow-id-display">{{ auth_flow_id }}</div>
+      <button onclick="copyFlowId()" class="btn btn-outline btn-sm" style="margin-bottom:1rem;width:100%;">
+        <i class="bi bi-clipboard-fill"></i> Copy Session ID
+      </button>
+    </div>
+
+    <!-- Timer -->
+    <div class="d-flex justify-between align-center mb-2">
+      <span style="font-size:0.82rem;color:var(--color-muted);">Token verification window:</span>
+      <div class="timer-display ok" id="timer-box">
+        <i class="bi bi-clock-fill"></i>
+        <span id="timer">4:00</span>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'verify_token' %}" id="token-form" autocomplete="off">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label" for="id_token">Enter Login Token</label>
+        <input type="text" id="id_token" name="token" class="form-control form-control-token"
+               placeholder="XXXXXXXXXX"
+               maxlength="10" required autofocus autocomplete="off"
+               style="text-transform:uppercase;"
+               {% if lockout_seconds and lockout_seconds > 0 %}disabled{% endif %}>
+        {% if attempts_left is not None %}
+          <p style="font-size:0.75rem;color:var(--color-muted);margin-top:0.4rem;text-align:right;">
+            <i class="bi bi-info-circle"></i> {{ attempts_left }} attempt(s) remaining
+          </p>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn-success btn-block btn-lg" id="token-btn"
+              {% if lockout_seconds and lockout_seconds > 0 %}disabled{% endif %}>
+        <i class="bi bi-unlock-fill"></i> Verify & Access Portal
+      </button>
+    </form>
+
+    <hr class="divider">
+    <p class="text-center">
+      <a href="{% url 'user_login' %}" class="link-sm">
+        <i class="bi bi-arrow-left"></i> Restart Login Process
+      </a>
+    </p>
+
+  </div>
+</div>
+
+<script>
+// 4-minute token verification timer
+let seconds = {{ remaining_seconds }};
+const timerEl = document.getElementById('timer');
+const timerBox = document.getElementById('timer-box');
+
+function updateTimer() {
+  if (seconds <= 0) {
+    timerEl.textContent = 'Expired';
+    timerBox.className = 'timer-display danger';
+    window.location.reload();
+    return;
+  }
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  if (seconds <= 30) timerBox.className = 'timer-display danger';
+  else if (seconds <= 60) timerBox.className = 'timer-display warning';
+  seconds--;
+  setTimeout(updateTimer, 1000);
+}
+updateTimer();
+
+function copyFlowId() {
+  const text = document.getElementById('flow-id-display').textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target.closest('button');
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard-fill"></i> Copy Session ID'; }, 2000);
+  });
+}
+
+// Token uppercase
+const tokenInput = document.getElementById('id_token');
+tokenInput.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+
+// Lockout counter
+const lockoutEl = document.getElementById('lockout-count');
+if (lockoutEl) {
+  let ls = parseInt(lockoutEl.textContent);
+  const li = setInterval(() => {
+    ls--;
+    if (ls <= 0) { clearInterval(li); window.location.reload(); }
+    else lockoutEl.textContent = ls;
+  }, 1000);
+}
+
+// Submit state
+document.getElementById('token-form').addEventListener('submit', function() {
+  const btn = document.getElementById('token-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner">⟳</span> Verifying...';
+});
+</script>
+
+<div id="timeout-msg" style="display:none;margin-top:1rem;" class="alert alert-danger">
+  <i class="bi bi-hourglass-split"></i>
+  Token verification window expired.
+  <a href="{% url 'user_login' %}" style="color:#fca5a5;">Please restart the login process.</a>
+</div>
+
+</body>
+</html>

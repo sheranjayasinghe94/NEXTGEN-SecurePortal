@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ module_meta.label }} – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="portal-layout">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div><div class="sidebar-brand-text">SecurePortal</div><div class="sidebar-brand-sub">ABC Corporation</div></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name">{{ user.full_name }}</div>
+      <div class="sidebar-user-role">{{ user.get_role_display_name }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Navigation</div>
+      <a href="{% url 'user_dashboard' %}" class="sidebar-item"><i class="bi bi-house-fill"></i> Dashboard Home</a>
+      {% for mod in modules %}
+        {% if mod.key != 'dashboard' and mod.key != 'admin_portal' %}
+          <a href="{% url 'portal_module' mod.key %}" class="sidebar-item {% if active_module == mod.key %}active{% endif %}">
+            <i class="bi {{ mod.icon }}"></i> {{ mod.label }}
+          </a>
+        {% endif %}
+      {% endfor %}
+      <div class="sidebar-section-label" style="margin-top:0.5rem;">Account</div>
+      <a href="{% url 'user_profile' %}" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+      <a href="{% url 'security_activity' %}" class="sidebar-item"><i class="bi bi-clock-history"></i> Security Activity</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'user_logout' %}" class="btn btn-outline btn-sm" style="width:100%;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+    </div>
+  </nav>
+
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div>
+        <div class="topbar-title">{{ module_meta.label }}</div>
+        <div class="topbar-sub">{{ user.full_name }} · {{ user.get_role_display_name }}</div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-success"><i class="bi bi-shield-fill-check"></i> Authenticated</span>
+      </div>
+    </div>
+
+    <div class="portal-content">
+      <div style="background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:3rem 2rem;text-align:center;max-width:560px;margin:0 auto;">
+        <div style="font-size:3rem;margin-bottom:1rem;"><i class="bi {{ module_meta.icon }}" style="color:var(--color-info);"></i></div>
+        <h2 style="font-size:1.4rem;font-weight:800;color:#f1f5f9;margin-bottom:0.5rem;">{{ module_meta.label }}</h2>
+        <p style="color:var(--color-muted);font-size:0.9rem;max-width:380px;margin:0 auto 2rem;">
+          This module is available to your role. In a production deployment, this section would display
+          live {{ module_meta.label|lower }} data and functionality appropriate for your clearance level.
+        </p>
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:0.7rem 1.2rem;">
+          <i class="bi bi-shield-fill-check" style="color:var(--color-success);"></i>
+          <span style="font-size:0.85rem;color:#86efac;">Access Authorized · Role: {{ user.get_role_display_name }}</span>
+        </div>
+        <div style="margin-top:2rem;">
+          <a href="{% url 'user_dashboard' %}" class="btn btn-primary">
+            <i class="bi bi-house-fill"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

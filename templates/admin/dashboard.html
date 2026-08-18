@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <nav class="admin-sidebar sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div>
+        <div class="sidebar-brand-text">SecurePortal</div>
+        <div class="sidebar-brand-sub">Admin Panel</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name">{{ request.session.admin_username }}</div>
+      <div class="sidebar-user-role">System Administrator</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Management</div>
+      <a href="{% url 'admin_dashboard' %}" class="sidebar-item active" id="nav-dashboard">
+        <i class="bi bi-house-fill"></i> Dashboard
+      </a>
+      <a href="{% url 'user_list' %}" class="sidebar-item" id="nav-users">
+        <i class="bi bi-people-fill"></i> Manage Users
+      </a>
+      <a href="{% url 'create_user' %}" class="sidebar-item" id="nav-create">
+        <i class="bi bi-person-plus-fill"></i> Create User
+      </a>
+      <div class="sidebar-section-label" style="margin-top:0.5rem;">Security</div>
+      <a href="{% url 'audit_log' %}" class="sidebar-item" id="nav-audit">
+        <i class="bi bi-journal-text"></i> Audit Log
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'admin_logout' %}" class="btn btn-outline btn-sm" style="width:100%;border-color:rgba(239,68,68,0.3);color:#f87171;">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="topbar-title">Admin Dashboard</div>
+        <div class="topbar-sub">Overview · SecurePortal Administration</div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-danger"><i class="bi bi-shield-fill-exclamation"></i> Admin Session</span>
+      </div>
+    </div>
+
+    <div class="portal-content">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}success{% endif %}">
+            <i class="bi bi-check-circle-fill"></i> {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(26,120,194,0.15);color:var(--color-info);">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(34,197,94,0.15);color:var(--color-success);">
+            <i class="bi bi-person-check-fill"></i>
+          </div>
+          <div>
+            <div class="stat-value">{{ active_users }}</div>
+            <div class="stat-label">Active Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(239,68,68,0.15);color:var(--color-danger);">
+            <i class="bi bi-person-x-fill"></i>
+          </div>
+          <div>
+            <div class="stat-value">{{ inactive_users }}</div>
+            <div class="stat-label">Inactive Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <a href="{% url 'create_user' %}" style="display:flex;align-items:center;gap:1rem;text-decoration:none;width:100%;">
+            <div class="stat-icon" style="background:rgba(124,58,237,0.15);color:#a78bfa;">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+              <div class="stat-value" style="font-size:1rem;color:#a78bfa;">Create</div>
+              <div class="stat-label">New User Account</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Audit Log -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title"><i class="bi bi-journal-text"></i> Recent Security Events</span>
+          <a href="{% url 'audit_log' %}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Event</th>
+                <th>IP Address</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in recent_logs %}
+              <tr>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;color:#64748b;">
+                  {{ log.timestamp|date:"Y-m-d H:i:s" }}
+                </td>
+                <td style="font-weight:600;color:#e2e8f0;">{{ log.user.username|default:"—" }}</td>
+                <td>{{ log.get_action_type_display }}</td>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;">{{ log.ip_address|default:"—" }}</td>
+                <td>
+                  {% if log.success %}
+                    <span class="badge badge-success">OK</span>
+                  {% else %}
+                    <span class="badge badge-danger">FAIL</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" style="text-align:center;color:var(--color-muted);">No events yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

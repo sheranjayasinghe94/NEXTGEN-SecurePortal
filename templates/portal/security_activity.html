@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Activity – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="portal-layout">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div><div class="sidebar-brand-text">SecurePortal</div><div class="sidebar-brand-sub">ABC Corporation</div></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name">{{ user.full_name }}</div>
+      <div class="sidebar-user-role">{{ user.get_role_display_name }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'user_dashboard' %}" class="sidebar-item"><i class="bi bi-house-fill"></i> Dashboard Home</a>
+      {% for mod in modules %}
+        {% if mod.key != 'dashboard' and mod.key != 'admin_portal' %}
+          <a href="{% url 'portal_module' mod.key %}" class="sidebar-item"><i class="bi {{ mod.icon }}"></i> {{ mod.label }}</a>
+        {% endif %}
+      {% endfor %}
+      <div class="sidebar-section-label" style="margin-top:0.5rem;">Account</div>
+      <a href="{% url 'user_profile' %}" class="sidebar-item"><i class="bi bi-person-circle"></i> My Profile</a>
+      <a href="{% url 'security_activity' %}" class="sidebar-item active"><i class="bi bi-clock-history"></i> Security Activity</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'user_logout' %}" class="btn btn-outline btn-sm" style="width:100%;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+    </div>
+  </nav>
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div><div class="topbar-title">Security Activity</div><div class="topbar-sub">Your recent authentication events</div></div>
+      <div class="topbar-right"><span class="badge badge-success"><i class="bi bi-shield-fill-check"></i> Authenticated</span></div>
+    </div>
+    <div class="portal-content">
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title"><i class="bi bi-clock-history"></i> Last 50 Security Events</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Timestamp</th><th>Event</th><th>Details</th><th>IP Address</th><th>Result</th></tr></thead>
+            <tbody>
+              {% for log in logs %}
+              <tr>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;color:#64748b;white-space:nowrap;">
+                  {{ log.timestamp|date:"Y-m-d H:i:s" }}
+                </td>
+                <td>{{ log.get_action_type_display }}</td>
+                <td style="font-size:0.82rem;color:#94a3b8;">{{ log.description|truncatechars:60 }}</td>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;">{{ log.ip_address|default:"—" }}</td>
+                <td>
+                  {% if log.success %}
+                    <span class="badge badge-success">OK</span>
+                  {% else %}
+                    <span class="badge badge-danger">FAIL</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" style="text-align:center;color:var(--color-muted);padding:2rem;">No security events found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

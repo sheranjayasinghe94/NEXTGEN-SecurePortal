@@ -1,0 +1,93 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+secrets.json
+config/secrets.py
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+.DS_Store
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+
+# C# / .NET
+bin/
+obj/
+*.dll
+*.exe
+.vs/
+*.user
+*.suo
+
+# Poetry
+poetry.lock
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Node (if used for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Database backups
+*.sql
+*.backup
+
+# Temporary files
+*.tmp
+temp/

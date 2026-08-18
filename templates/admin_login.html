@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="brand-header">
+        <div class="brand-logo" style="background:linear-gradient(135deg,#dc2626,#7f1d1d);">
+          <i class="bi bi-person-gear"></i>
+        </div>
+        <span class="brand-name">Administrator Login</span>
+        <span class="brand-sub">Restricted · Authorized Admins Only</span>
+      </div>
+
+      <div
+        style="margin-bottom:1.2rem;padding:0.75rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;">
+        <p style="font-size:0.78rem;color:#fca5a5;text-align:center;">
+          <i class="bi bi-shield-exclamation"></i>
+          Administrator access — Higher privilege level. All sessions are monitored.
+        </p>
+      </div>
+
+      {% if messages %}
+      {% for msg in messages %}
+      <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %}">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ msg }}
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <form method="post" action="{% url 'admin_login' %}" id="admin-form" autocomplete="off">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="id_username">Admin Username</label>
+          <div class="input-group">
+            <i class="bi bi-person-fill input-icon"></i>
+            <input type="text" id="id_username" name="username" class="form-control" placeholder="Enter admin username"
+              required autofocus>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_password">Password</label>
+          <div class="input-group">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input type="password" id="id_password" name="password" class="form-control" placeholder="Enter password"
+              required>
+            <span class="input-toggle" onclick="togglePw()"><i class="bi bi-eye-fill" id="pw-icon"></i></span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-danger btn-block btn-lg" id="submit-btn"
+          style="background:linear-gradient(135deg,#dc2626,#991b1b);">
+          <i class="bi bi-shield-lock-fill"></i> Admin Login
+        </button>
+      </form>
+
+      <hr class="divider">
+      <p class="text-center">
+        <a href="{% url 'login_choice' %}" class="link-sm">
+          <i class="bi bi-arrow-left"></i> Back to Login Type
+        </a>
+      </p>
+    </div>
+  </div>
+  <script>
+    function togglePw() {
+      const inp = document.getElementById('id_password');
+      const ico = document.getElementById('pw-icon');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      ico.className = inp.type === 'password' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill';
+    }
+    document.getElementById('admin-form').addEventListener('submit', function () {
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner">⟳</span> Authenticating...';
+    });
+  </script>
+</body>
+
+</html>

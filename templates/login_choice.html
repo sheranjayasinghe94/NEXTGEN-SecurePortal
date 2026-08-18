@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – SecurePortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card auth-card-wide">
+    <div class="brand-header">
+      <div class="brand-logo"><i class="bi bi-shield-lock-fill"></i></div>
+      <span class="brand-name">SecurePortal</span>
+      <span class="brand-sub">N e x t G e n Corporation · Internal Access</span>
+    </div>
+
+    <h2 class="section-title text-center" style="margin-bottom:0.3rem;">Select Login Type</h2>
+    <p class="section-sub text-center">Choose your access level to continue</p>
+
+    <div class="choice-grid">
+      <a href="{% url 'admin_login' %}" class="choice-card" id="choice-admin">
+        <span class="choice-icon" style="color:#ef4444;">
+          <i class="bi bi-person-gear"></i>
+        </span>
+        <span class="choice-title">Admin Login</span>
+        <span class="choice-desc">System administrators and IT security personnel</span>
+      </a>
+      <a href="{% url 'user_login' %}" class="choice-card" id="choice-user">
+        <span class="choice-icon" style="color:var(--color-info);">
+          <i class="bi bi-person-badge-fill"></i>
+        </span>
+        <span class="choice-title">Staff Login</span>
+        <span class="choice-desc">Authorized internal staff and privileged users</span>
+      </a>
+    </div>
+
+    <hr class="divider">
+    <p class="text-center">
+      <a href="{% url 'landing' %}" class="link-sm">
+        <i class="bi bi-arrow-left"></i> Return to Main Site
+      </a>
+    </p>
+
+    <div style="margin-top:1.5rem;padding:0.8rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;text-align:center;">
+      <p style="font-size:0.75rem;color:#fcd34d;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        This system is for authorized personnel only. All login attempts are monitored and recorded.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

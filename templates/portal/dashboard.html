@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Portal – NextGen Corporation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+<div class="portal-layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+      <div>
+        <div class="sidebar-brand-text">SecurePortal</div>
+        <div class="sidebar-brand-sub">NextGen SecurePortal</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name">{{ user.full_name }}</div>
+      <div class="sidebar-user-role">{{ user.get_role_display_name }} · {{ user.branch.name|default:"Corporate" }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Navigation</div>
+      {% for mod in modules %}
+        {% if mod.key == 'admin_portal' %}
+          <a href="{% url 'admin_dashboard' %}" class="sidebar-item {% if active_module == mod.key %}active{% endif %}">
+            <i class="bi {{ mod.icon }}"></i> {{ mod.label }}
+          </a>
+        {% elif mod.key == 'dashboard' %}
+          <a href="{% url 'user_dashboard' %}" class="sidebar-item {% if active_module == mod.key %}active{% endif %}">
+            <i class="bi {{ mod.icon }}"></i> {{ mod.label }}
+          </a>
+        {% else %}
+          <a href="{% url 'portal_module' mod.key %}" class="sidebar-item {% if active_module == mod.key %}active{% endif %}">
+            <i class="bi {{ mod.icon }}"></i> {{ mod.label }}
+          </a>
+        {% endif %}
+      {% endfor %}
+      <div class="sidebar-section-label" style="margin-top:0.5rem;">Account</div>
+      <a href="{% url 'user_profile' %}" class="sidebar-item {% if active_module == 'profile' %}active{% endif %}">
+        <i class="bi bi-person-circle"></i> My Profile
+      </a>
+      <a href="{% url 'security_activity' %}" class="sidebar-item {% if active_module == 'access_logs' %}active{% endif %}">
+        <i class="bi bi-clock-history"></i> Security Activity
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'user_logout' %}" class="btn btn-outline btn-sm" style="width:100%;">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="portal-main">
+    <div class="portal-topbar">
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-sub">Welcome back, {{ user.full_name }} · Authenticated · Secure Session</div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-success">
+          <i class="bi bi-shield-fill-check"></i> Authenticated
+        </span>
+        <span style="font-size:0.8rem;color:var(--color-muted);" id="session-clock"></span>
+      </div>
+    </div>
+
+    <div class="portal-content">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}success{% endif %}">
+            <i class="bi bi-check-circle-fill"></i> {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Greeting Banner -->
+      <div style="background:linear-gradient(135deg,rgba(26,120,194,0.15),rgba(13,26,42,0.4));border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.5rem 2rem;margin-bottom:2rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <h1 style="font-size:1.4rem;font-weight:800;color:#f1f5f9;margin-bottom:0.3rem;">
+              Welcome, {{ user.full_name }}
+            </h1>
+            <p style="font-size:0.85rem;color:#64748b;">
+              <i class="bi bi-calendar3"></i> Last login session authenticated via 3-layer verification.
+              Employee ID: <strong style="color:#94a3b8;">{{ user.employee_id }}</strong>
+            </p>
+          </div>
+          <div style="text-align:right;">
+            <div class="badge badge-success" style="font-size:0.8rem;padding:0.35rem 0.8rem;">
+              <i class="bi bi-shield-fill-check"></i> &nbsp;Full Auth Complete
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Modules Grid -->
+      <h2 style="font-size:1rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;">
+        <i class="bi bi-grid-fill"></i> Your Access Modules
+      </h2>
+      <div class="modules-grid" style="margin-bottom:2rem;">
+        {% for mod in modules %}
+          {% if mod.key != 'dashboard' and mod.key != 'admin_portal' %}
+          <a href="{% url 'portal_module' mod.key %}" class="module-card">
+            <span class="module-icon" style="color:var(--color-info);">
+              <i class="bi {{ mod.icon }}"></i>
+            </span>
+            <span class="module-label">{{ mod.label }}</span>
+          </a>
+          {% endif %}
+        {% endfor %}
+        <a href="{% url 'user_profile' %}" class="module-card">
+          <span class="module-icon" style="color:var(--color-muted);"><i class="bi bi-person-circle"></i></span>
+          <span class="module-label">My Profile</span>
+        </a>
+      </div>
+
+      <!-- Recent Security Activity -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title"><i class="bi bi-clock-history"></i> Recent Security Activity</span>
+          <a href="{% url 'security_activity' %}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Time</th><th>Event</th><th>IP Address</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for log in recent_logs %}
+              <tr>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;color:#64748b;">
+                  {{ log.timestamp|date:"Y-m-d H:i" }}
+                </td>
+                <td>{{ log.get_action_type_display }}</td>
+                <td style="font-family:var(--font-mono);font-size:0.78rem;">{{ log.ip_address|default:"—" }}</td>
+                <td>
+                  {% if log.success %}
+                    <span class="badge badge-success">OK</span>
+                  {% else %}
+                    <span class="badge badge-danger">FAIL</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center;color:var(--color-muted);">No events yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Live clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('session-clock').textContent =
+    now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+updateClock(); setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
