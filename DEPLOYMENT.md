@@ -1,8 +1,7 @@
-# Deployment Guide for SecurePortal
+<h1 align="center">DEPLOYMENT GUIDE FOR NEXTGEN-SECUREPORTAL</h1>
+<p align="center">This guide provides step-by-step instructions for deploying SecurePortal to a production environment.</p>
 
-This guide provides step-by-step instructions for deploying SecurePortal to a production environment.
-
-## Pre-Deployment Checklist
+## PRE-DEPLOYMENT CHECHLIST
 
 ### Security ✅
 - [ ] Generated new `SECRET_KEY` (not the default)
@@ -35,7 +34,7 @@ This guide provides step-by-step instructions for deploying SecurePortal to a pr
 
 ---
 
-## Deployment Steps
+## DEPLOYMENT STEP
 
 ### Option 1: Linux/Ubuntu Server Deployment
 
@@ -372,7 +371,7 @@ volumes:
 
 ---
 
-## Post-Deployment
+## POST-DEPLOYMENT
 
 ### 1. Verify Installation
 
@@ -404,44 +403,7 @@ python manage.py check --deploy
 - Configure alerts for errors and failures
 - Monitor database performance
 
-### 4. Documentation
-
-- Document your infrastructure setup
-- Create runbooks for common operations
-- Document backup/restore procedures
-- Record admin credentials securely
-
----
-
-## Production Maintenance
-
-### Regular Tasks
-
-#### Daily
-- [ ] Monitor application logs for errors
-- [ ] Check audit log for suspicious activity
-- [ ] Monitor disk space and memory usage
-
-#### Weekly
-- [ ] Review security logs
-- [ ] Check database performance
-- [ ] Verify backups completed successfully
-
-#### Monthly
-- [ ] Update dependencies: `pip list --outdated`
-- [ ] Review and rotate credentials
-- [ ] Security audit
-- [ ] Disaster recovery test
-
-#### Quarterly
-- [ ] Full security audit
-- [ ] Penetration testing
-- [ ] Database optimization
-- [ ] Capacity planning
-
----
-
-## Troubleshooting
+## TROUBLESHOOTING
 
 ### Application won't start
 ```bash
